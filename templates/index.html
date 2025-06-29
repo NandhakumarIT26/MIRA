@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Instruction Viewer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h2>Select an Instruction</h2>
+    <select id="instruction-select">
+      <option value="" disabled selected>Choose...</option>
+      {% for ins in instructions %}
+        <option value="{{ ins }}">{{ ins }}</option>
+      {% endfor %}
+    </select>
+
+    <div class="box">
+      <h3>FROM CSV</h3>
+      <div class="elements">
+        <div class="element action" id="action-box">Action (basic action): —</div>
+        <div class="element object" id="object-box">Objects: —</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const selectBox = document.getElementById('instruction-select');
+    const actionBox = document.getElementById('action-box');
+    const objectBox = document.getElementById('object-box');
+
+    selectBox.addEventListener('change', async function () {
+      const selected = this.value;
+
+      const response = await fetch('/get_details_json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ instruction: selected })
+      });
+
+      const data = await response.json();
+
+      actionBox.innerText = 'Action (basic action): ' + data.actions.join(', ');
+      objectBox.innerText = 'Objects: ' + data.objects.join(', ');
+    });
+  </script>
+</body>
+</html>
