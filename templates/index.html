@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Instruction Viewer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <!-- Navigation Bar -->
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="nav-logo">
+      <img src="{{ url_for('static', filename='MIRA-Logo.png') }}" alt="App Logo">
+      <span>MIRA Agent</span> <!-- You can change text -->
+    </div>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="#about-section">About</a></li>
+      <!-- <li><a href="#">Contact</a></li> -->
+    </ul>
+  </div>
+</nav>
+  <div class="container">
+    <h1 class="main-title">MIRA AGENT</h1>
+    <h2><i class="upload-icon">📁</i> Upload your CSV file</h2>
+
+<div class="upload-section">
+  <form id="upload-form" method="POST" enctype="multipart/form-data" action="/upload_csv">
+    <label for="csv-upload" class="upload-label">Upload your CSV:</label>
+    <input type="file" name="csv_file" id="csv-upload" accept=".csv">
+    <button type="submit" class="upload-button">Upload CSV</button>
+  </form>
+</div>
+
+
+    <select id="instruction-select">
+      <option value="" disabled selected>Choose...</option>
+      {% for ins in instructions %}
+        <option value="{{ ins }}">{{ ins }}</option>
+      {% endfor %}
+    </select>
+
+    <div class="box">
+      <div class="elements">
+        <div class="element action" id="action-box">Action (basic action): —</div>
+        <div class="element object" id="object-box">Objects: —</div>
+      </div>
+    </div>
+  </div>
+  <!-- ABOUT SECTION -->
+<section id="about-section" class="about">
+  <h2>About Mira Agent Assistant</h2>
+  <p>
+    <strong>CookWise</strong> is your intelligent kitchen companion. Powered by advanced Language Learning Models (LLMs),
+    it helps you cook various dishes with clarity and precision. Simply upload your own set of cooking instructions as a CSV file,
+    and the app breaks them down into actionable steps — extracting key <strong>actions</strong> and <strong>objects</strong> to guide you through each phase of the cooking process.
+  </p>
+  <p>
+    Whether you're a beginner in the kitchen or an experienced chef, CookWise transforms plain instructions into structured, easy-to-follow steps, 
+    making your cooking journey smoother and smarter.
+  </p>
+</section>
+
+  <script>
+    const selectBox = document.getElementById('instruction-select');
+    const actionBox = document.getElementById('action-box');
+    const objectBox = document.getElementById('object-box');
+
+    selectBox.addEventListener('change', async function () {
+      const selected = this.value;
+      const response = await fetch('/get_details_json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ instruction: selected })
+      });
+      const data = await response.json();
+      actionBox.innerText = 'Action (basic action): ' + data.actions.join(', ');
+      objectBox.innerText = 'Objects: ' + data.objects.join(', ');
+    });
+  </script>
+</body>
+</html>
